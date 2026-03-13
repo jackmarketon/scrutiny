@@ -31,8 +31,8 @@ cd src-tauri
 cargo build --release
 
 # Copy the binary to the plugin directory
-mkdir -p ../claude-plugin/bin
-cp target/release/scrutiny ../claude-plugin/bin/
+mkdir -p ../bin
+cp target/release/scrutiny ../bin/
 ```
 
 ### Testing Workflow
@@ -58,8 +58,8 @@ cat ~/.config/claude/logs/plugin-*.log
 ### Plugin Structure
 
 ```
-claude-plugin/
-├── .claude-plugin/
+
+├── .
 │   └── manifest.json       # Plugin metadata
 ├── hooks/
 │   ├── hooks.json          # Hook event bindings

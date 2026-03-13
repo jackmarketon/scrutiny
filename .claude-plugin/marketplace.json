@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "scrutiny",
-      "source": "./claude-plugin/",
+      "source": "./",
       "description": "Native plan editor with side-by-side diffs and inline commenting"
     }
   ]

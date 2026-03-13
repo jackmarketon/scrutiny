@@ -266,7 +266,7 @@ scrutiny/
 │   │   └── main.rs       # Tauri commands
 │   ├── Cargo.toml        # Rust dependencies
 │   └── tauri.conf.json   # Tauri configuration
-├── claude-plugin/         # Claude Code integration
+├──          # Claude Code integration
 │   └── hooks/
 │       ├── hooks.json    # Event bindings
 │       └── edit-plan.sh  # Launch script
