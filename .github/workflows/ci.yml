@@ -28,7 +28,7 @@ jobs:
         run: npm install
 
       - name: Lint Frontend
-        run: npx oxlint src
+        run: npx oxlint src --deny-warnings
 
       - name: Format Check
         run: npm run format:check

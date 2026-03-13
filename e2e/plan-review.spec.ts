@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Plan Review", () => {
   test("should render plan review interface", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("h1")).toContainText("Scrutiny");
+    await expect(page.locator("h1")).toContainText("Claude Plan Review");
   });
 
   test("should open comment dialog", async ({ page }) => {
