@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -70,12 +73,18 @@ jobs:
           name: scrutiny-linux-x64
           path: src-tauri/target/${{ matrix.platform.target }}/release/scrutiny
 
+      - name: Zip macOS app bundle
+        if: matrix.platform.os == 'macos-latest'
+        run: |
+          cd src-tauri/target/${{ matrix.platform.target }}/release/bundle/macos
+          zip -r Scrutiny-${{ matrix.platform.target }}.zip Scrutiny.app
+
       - name: Upload macOS artifact
         if: matrix.platform.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: scrutiny-macos-${{ matrix.platform.target }}
-          path: src-tauri/target/${{ matrix.platform.target }}/release/bundle/macos/Scrutiny.app
+          path: src-tauri/target/${{ matrix.platform.target }}/release/bundle/macos/Scrutiny-${{ matrix.platform.target }}.zip
 
       - name: Upload Windows artifact
         if: matrix.platform.os == 'windows-latest'
@@ -102,11 +111,9 @@ jobs:
         with:
           files: |
             artifacts/scrutiny-linux-x64/scrutiny
-            artifacts/scrutiny-macos-x86_64-apple-darwin/Scrutiny.app
-            artifacts/scrutiny-macos-aarch64-apple-darwin/Scrutiny.app
+            artifacts/scrutiny-macos-x86_64-apple-darwin/Scrutiny-x86_64-apple-darwin.zip
+            artifacts/scrutiny-macos-aarch64-apple-darwin/Scrutiny-aarch64-apple-darwin.zip
             artifacts/scrutiny-windows-x64/scrutiny.exe
           draft: false
           prerelease: false
           generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
