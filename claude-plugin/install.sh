@@ -3,12 +3,26 @@
 
 set -e
 
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")" && pwd)}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 BIN_DIR="$PLUGIN_ROOT/bin"
 GITHUB_REPO="jackmarketon/scrutiny"
 VERSION="${SCRUTINY_VERSION:-latest}"
+VERSION_FILE="$BIN_DIR/.version"
 
 echo "=== Installing Scrutiny Plugin ==="
+
+# Check if already installed and up to date
+if [ -f "$VERSION_FILE" ] && [ "$VERSION" = "latest" ]; then
+  INSTALLED_VERSION=$(cat "$VERSION_FILE")
+  LATEST_VERSION=$(curl -sL "https://api.github.com/repos/$GITHUB_REPO/releases/latest" | grep '"tag_name"' | cut -d '"' -f 4)
+  
+  if [ "$INSTALLED_VERSION" = "$LATEST_VERSION" ]; then
+    echo "✓ Already up to date ($INSTALLED_VERSION)"
+    exit 0
+  else
+    echo "Update available: $INSTALLED_VERSION → $LATEST_VERSION"
+  fi
+fi
 
 # Detect platform
 OS="$(uname -s)"
@@ -17,19 +31,27 @@ ARCH="$(uname -m)"
 case "$OS" in
   Darwin)
     if [ "$ARCH" = "arm64" ]; then
+      TARGET="aarch64-apple-darwin"
       PLATFORM="macos-aarch64"
+      ASSET_NAME="Scrutiny-aarch64-apple-darwin.zip"
       BINARY_NAME="Scrutiny.app"
     else
+      TARGET="x86_64-apple-darwin"
       PLATFORM="macos-x86_64"
+      ASSET_NAME="Scrutiny-x86_64-apple-darwin.zip"
       BINARY_NAME="Scrutiny.app"
     fi
     ;;
   Linux)
+    TARGET="x86_64-unknown-linux-gnu"
     PLATFORM="linux-x64"
+    ASSET_NAME="scrutiny"
     BINARY_NAME="scrutiny"
     ;;
   MINGW*|MSYS*|CYGWIN*)
+    TARGET="x86_64-pc-windows-msvc"
     PLATFORM="windows-x64"
+    ASSET_NAME="scrutiny.exe"
     BINARY_NAME="scrutiny.exe"
     ;;
   *)
@@ -44,19 +66,23 @@ echo "Detected platform: $PLATFORM"
 if [ "$VERSION" = "latest" ]; then
   RELEASE_URL="https://api.github.com/repos/$GITHUB_REPO/releases/latest"
   echo "Fetching latest release info..."
-  DOWNLOAD_URL=$(curl -sL "$RELEASE_URL" | grep "browser_download_url.*$PLATFORM" | head -1 | cut -d '"' -f 4)
+  RELEASE_INFO=$(curl -sL "$RELEASE_URL")
+  RELEASE_TAG=$(echo "$RELEASE_INFO" | grep '"tag_name"' | head -1 | cut -d '"' -f 4)
+  DOWNLOAD_URL=$(echo "$RELEASE_INFO" | grep "browser_download_url.*$ASSET_NAME" | head -1 | cut -d '"' -f 4)
 else
-  DOWNLOAD_URL="https://github.com/$GITHUB_REPO/releases/download/$VERSION/scrutiny-$PLATFORM"
+  RELEASE_TAG="$VERSION"
+  DOWNLOAD_URL="https://github.com/$GITHUB_REPO/releases/download/$VERSION/$ASSET_NAME"
 fi
 
 if [ -z "$DOWNLOAD_URL" ]; then
-  echo "ERROR: Could not find release for $PLATFORM"
+  echo "ERROR: Could not find release asset: $ASSET_NAME"
   echo ""
   echo "Please download manually from:"
   echo "  https://github.com/$GITHUB_REPO/releases"
   exit 1
 fi
 
+echo "Release: $RELEASE_TAG"
 echo "Download URL: $DOWNLOAD_URL"
 
 # Create bin directory
@@ -75,18 +101,24 @@ else
   exit 1
 fi
 
-# Move to final location
+# Install binary
 if [ "$OS" = "Darwin" ]; then
-  # macOS .app bundle
+  # macOS: unzip .app bundle
+  echo "Extracting macOS app bundle..."
   if [ -d "$BIN_DIR/Scrutiny.app" ]; then
     rm -rf "$BIN_DIR/Scrutiny.app"
   fi
-  mv "$TEMP_FILE" "$BIN_DIR/Scrutiny.app"
+  unzip -q "$TEMP_FILE" -d "$BIN_DIR"
+  rm "$TEMP_FILE"
+  chmod +x "$BIN_DIR/Scrutiny.app/Contents/MacOS/Scrutiny"
 else
-  # Linux/Windows binary
-  mv "$TEMP_FILE" "$BIN_DIR/scrutiny"
-  chmod +x "$BIN_DIR/scrutiny"
+  # Linux/Windows: direct binary
+  mv "$TEMP_FILE" "$BIN_DIR/$BINARY_NAME"
+  chmod +x "$BIN_DIR/$BINARY_NAME"
 fi
+
+# Save installed version
+echo "$RELEASE_TAG" > "$VERSION_FILE"
 
 # Verify
 if [ "$OS" = "Darwin" ]; then

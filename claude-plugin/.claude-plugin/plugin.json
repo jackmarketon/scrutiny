@@ -5,10 +5,5 @@
   "author": "Jackson Marketon",
   "homepage": "https://github.com/jackmarketon/scrutiny",
   "repository": "https://github.com/jackmarketon/scrutiny",
-  "license": "MIT",
-  "hooks": "hooks/hooks.json",
-  "install": {
-    "script": "install.sh",
-    "post_message": "Scrutiny installed! Binary will launch automatically when Claude presents plans."
-  }
+  "license": "MIT"
 }
