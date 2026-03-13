@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Plan Editor",
+  "productName": "Scrutiny",
   "version": "0.1.0",
-  "identifier": "com.claude.planeditor",
+  "identifier": "com.jackmarketon.scrutiny",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,13 +12,12 @@
   "app": {
     "windows": [
       {
-        "title": "Claude Plan Review",
+        "title": "Scrutiny - Plan Review",
         "width": 1200,
         "height": 800,
         "resizable": true,
         "fullscreen": false,
-        "decorations": true,
-        "theme": "dark"
+        "decorations": true
       }
     ],
     "security": {
