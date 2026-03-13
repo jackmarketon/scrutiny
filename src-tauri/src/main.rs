@@ -148,3 +148,48 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_compute_diff_no_changes() {
+        let original = "Step 1\nStep 2\nStep 3".to_string();
+        let edited = "Step 1\nStep 2\nStep 3".to_string();
+        
+        let result = compute_diff(original, edited).unwrap();
+        
+        assert!(!result.has_changes);
+    }
+
+    #[test]
+    fn test_compute_diff_with_changes() {
+        let original = "Step 1\nStep 2".to_string();
+        let edited = "Step 1\nStep 1.5\nStep 2".to_string();
+        
+        let result = compute_diff(original, edited).unwrap();
+        
+        assert!(result.has_changes);
+        assert!(result.lines.len() > 0);
+    }
+
+    #[test]
+    fn test_compute_diff_removal() {
+        let original = "Step 1\nStep 2\nStep 3".to_string();
+        let edited = "Step 1\nStep 3".to_string();
+        
+        let result = compute_diff(original, edited).unwrap();
+        
+        assert!(result.has_changes);
+        // Should have at least one "remove" type line
+        let has_removal = result.lines.iter().any(|l| l.line_type == "remove");
+        assert!(has_removal);
+    }
+
+    #[test]
+    fn test_load_plan_nonexistent_file() {
+        let result = load_plan("/nonexistent/path/plan.md".to_string());
+        assert!(result.is_err());
+    }
+}
