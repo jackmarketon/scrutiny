@@ -18,19 +18,28 @@ PLAN_CONTENT=$(echo "$PLAN_JSON" | jq -r '.plan_text // .content // .message // 
 PLAN_FILE="$PLAN_DIR/${PLAN_ID}.md"
 echo "$PLAN_CONTENT" > "$PLAN_FILE"
 
-# Launch Tauri app (blocking)
-# Assumes the app is built and available in the plugin directory
-TAURI_APP="$PLUGIN_ROOT/../target/release/scrutiny"
+# Detect platform and find binary
+OS="$(uname -s)"
+if [ "$OS" = "Darwin" ]; then
+    SCRUTINY_BIN="$PLUGIN_ROOT/bin/Scrutiny.app/Contents/MacOS/Scrutiny"
+else
+    SCRUTINY_BIN="$PLUGIN_ROOT/bin/scrutiny"
+fi
 
-if [ ! -f "$TAURI_APP" ]; then
-    echo "ERROR: Tauri app not found at: $TAURI_APP" >&2
-    echo "Build it first with: cd scrutiny && npm run tauri:build" >&2
+if [ ! -f "$SCRUTINY_BIN" ] && [ ! -e "$SCRUTINY_BIN" ]; then
+    echo "ERROR: Scrutiny binary not found at: $SCRUTINY_BIN" >&2
+    echo "Run: claude plugin install scrutiny" >&2
     exit 1
 fi
 
-# Launch with plan path
-"$TAURI_APP" "$PLAN_FILE" &
-APP_PID=$!
+# Launch with plan path (blocking)
+if [ "$OS" = "Darwin" ]; then
+    open -W -a "$PLUGIN_ROOT/bin/Scrutiny.app" --args "$PLAN_FILE" &
+    APP_PID=$!
+else
+    "$SCRUTINY_BIN" "$PLAN_FILE" &
+    APP_PID=$!
+fi
 
 # Wait for app to close
 wait $APP_PID
