@@ -1,0 +1,12 @@
+{
+  "name": "Scrutiny Marketplace",
+  "description": "Native plan editor for Claude Code",
+  "plugins": [
+    {
+      "name": "scrutiny",
+      "path": "claude-plugin",
+      "version": "0.1.1",
+      "description": "Native plan editor with side-by-side diffs and inline commenting"
+    }
+  ]
+}
