@@ -1,9 +1,5 @@
 {
   "name": "scrutiny",
-  "version": "0.1.0",
   "description": "Native plan editor for Claude Code with side-by-side diffs and inline commenting",
-  "author": "Jackson Marketon",
-  "homepage": "https://github.com/jackmarketon/scrutiny",
-  "repository": "https://github.com/jackmarketon/scrutiny",
-  "license": "MIT"
+  "version": "0.1.1"
 }
