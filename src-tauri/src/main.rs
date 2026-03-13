@@ -130,7 +130,6 @@ fn save_feedback(
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
         .setup(|app| {
             // Get plan path from CLI args
             let args: Vec<String> = std::env::args().collect();
