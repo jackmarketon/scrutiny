@@ -170,7 +170,18 @@ scrutiny.exe C:\Temp\test.md
 
 ## Development
 
-Want to build from source or contribute? See below.
+Want to build from source or contribute? See **[DEVELOPMENT.md](DEVELOPMENT.md)** for full details.
+
+### Quick: Test Plugin Locally
+
+To test the plugin without installing it globally:
+
+```bash
+# Run Claude Code with local plugin directory
+claude --plugin-dir ${PWD}/claude-plugin
+```
+
+This loads the plugin from your checkout instead of `~/.config/claude/plugins`, useful for testing changes.
 
 ### Prerequisites
 
