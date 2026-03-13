@@ -20,7 +20,6 @@ function App() {
   const [planData, setPlanData] = useState<PlanData | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [currentEdit, setCurrentEdit] = useState("");
-  const [mergeView, setMergeView] = useState<MergeView | null>(null);
   const [showCommentDialog, setShowCommentDialog] = useState(false);
   const [selectedLine, setSelectedLine] = useState(0);
   const [commentText, setCommentText] = useState("");
@@ -68,8 +67,6 @@ function App() {
       },
       parent: editorRef.current,
     });
-
-    setMergeView(view);
 
     return () => {
       view.destroy();
