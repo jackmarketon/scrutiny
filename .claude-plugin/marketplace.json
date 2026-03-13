@@ -1,11 +1,12 @@
 {
-  "name": "Scrutiny Marketplace",
-  "description": "Native plan editor for Claude Code",
+  "name": "scrutiny-marketplace",
+  "owner": {
+    "name": "Jackson Marketon"
+  },
   "plugins": [
     {
       "name": "scrutiny",
-      "path": "claude-plugin",
-      "version": "0.1.1",
+      "source": "./claude-plugin/",
       "description": "Native plan editor with side-by-side diffs and inline commenting"
     }
   ]
