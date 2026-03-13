@@ -105,13 +105,13 @@ fn test_compute_diff_with_changes() {
 
 ### Frontend Linting
 
-**ESLint:**
+**oxlint:**
 ```bash
 npm run lint            # Check for issues
 npm run lint:fix        # Auto-fix issues
 ```
 
-**Config:** `.eslintrc.json`
+**Config:** `.oxlintrc.json`
 
 **Prettier:**
 ```bash
@@ -148,7 +148,7 @@ cargo fmt -- --check   # Check formatting
 
 Tests run automatically on GitHub Actions for every PR:
 
-- ✅ ESLint check
+- ✅ oxlint check
 - ✅ Prettier format check
 - ✅ Vitest unit tests
 - ✅ Playwright E2E tests
@@ -170,7 +170,7 @@ npm run check
 
 This runs:
 1. Format check (Prettier + rustfmt)
-2. Lint (ESLint + Clippy)
+2. Lint (oxlint + Clippy)
 3. Tests (Vitest + cargo test)
 
 **All green?** ✅ Ready to commit!
@@ -289,7 +289,7 @@ cargo clean
 cargo test
 ```
 
-### ESLint complains about React version
+### oxlint complains about React version
 
 **Fix:** It auto-detects from package.json (no action needed)
 
