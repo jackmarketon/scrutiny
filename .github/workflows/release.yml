@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: scrutiny
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: Scrutiny.app
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: Scrutiny.app
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: scrutiny.exe
+
+    runs-on: ${{ matrix.platform.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+
+      - name: Install Linux dependencies
+        if: matrix.platform.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run tauri:build -- --target ${{ matrix.platform.target }}
+
+      - name: Upload Linux artifact
+        if: matrix.platform.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrutiny-linux-x64
+          path: src-tauri/target/${{ matrix.platform.target }}/release/scrutiny
+
+      - name: Upload macOS artifact
+        if: matrix.platform.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrutiny-macos-${{ matrix.platform.target }}
+          path: src-tauri/target/${{ matrix.platform.target }}/release/bundle/macos/Scrutiny.app
+
+      - name: Upload Windows artifact
+        if: matrix.platform.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrutiny-windows-x64
+          path: src-tauri/target/${{ matrix.platform.target }}/release/scrutiny.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/scrutiny-linux-x64/scrutiny
+            artifacts/scrutiny-macos-x86_64-apple-darwin/Scrutiny.app
+            artifacts/scrutiny-macos-aarch64-apple-darwin/Scrutiny.app
+            artifacts/scrutiny-windows-x64/scrutiny.exe
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
